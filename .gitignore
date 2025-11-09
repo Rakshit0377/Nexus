@@ -1,0 +1,131 @@
+# =========================
+# Global OS / Editor Files
+# =========================
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+*.swp
+*.swo
+.idea/
+.vscode/
+*.env
+.env.local
+.env.development
+.env.production
+.env.test
+
+# =========================
+# Node.js / JavaScript (Next.js / NestJS)
+# =========================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+package-lock.json
+.pnpm-debug.log
+dist/
+build/
+.cache/
+coverage/
+*.tsbuildinfo
+
+# =========================
+# Flutter / Dart
+# =========================
+**/build/
+**/.dart_tool/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/.packages
+**/pubspec.lock
+android/.gradle/
+android/app/build/
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Flutter.framework/
+ios/Flutter/Flutter.podspec
+*.apk
+*.aab
+*.ipa
+
+# =========================
+# Python (AI / ML Service)
+# =========================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+.eggs/
+venv/
+.env/
+.envrc
+build/
+develop-eggs/
+dist/
+pip-wheel-metadata/
+.pytest_cache/
+.ipynb_checkpoints/
+.mypy_cache/
+.DS_Store
+
+# =========================
+# Turborepo / Workspace
+# =========================
+.turbo/
+.cache/
+.out/
+*.tgz
+
+# =========================
+# Docker / Deployment
+# =========================
+docker-compose.override.yml
+*.pid
+*.seed
+*.pid.lock
+*.log
+/tmp/
+logs/
+tmp/
+data/
+uploads/
+
+# =========================
+# Miscellaneous
+# =========================
+*.bak
+*.orig
+*.rej
+*.sublime-workspace
+*.sublime-project
+*.iml
+*.class
+*.lock
+
+# =========================
+# JetBrains / IDEs
+# =========================
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+# =========================
+# MacOS system files
+# =========================
+*.DS_Store
+.AppleDouble
+.LSOverride
+
+# =========================
+# Windows system files
+# =========================
+Thumbs.db
+ehthumbs.db
+Desktop.ini
