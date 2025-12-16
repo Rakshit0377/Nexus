@@ -1,48 +1,78 @@
 import express from "express";
+import http from "http";
+import { Server as SocketIOServer } from "socket.io";
 import dotenv from "dotenv";
+
 import { dbConnect } from "./utils/dbConnect.js";
+import taskRoutes from "./routes/taskRoutes.js";
+import aiRoutes from "./routes/aiRoutes.js";
 
-// --- Import Your New Routes from their folders ---
-// THIS IS THE PART YOU'RE MISSING:
-//import userRoutes from "./userRoutes.js";
-import taskRoutes from "./taskRoutes.js"; // <-- This line defines 'taskRoutes'
-//import placeRoutes from "./placeRoutes.js";
-
-// --- Other Imports ---
-import { getWeather } from "./utils/getWeather.js";
+import {
+  findNearbyTasks,
+  buildUserSpatialIndex,
+} from "./utils/spatialIndex.js";
 
 dotenv.config();
+
 const app = express();
-app.use(express.json()); // Middleware to parse JSON
+app.use(express.json());
 
 const port = process.env.PORT || 3000;
 
-// --- API ROUTES ---
-// Tell Express to use your route files with their base paths
-//app.use("/api/users", userRoutes);
-app.use("/api/tasks", taskRoutes); // Now this line will work
-//app.use("/api/places", placeRoutes);
+// HTTP server
+const server = http.createServer(app);
 
-// --- Weather Test Route ---
-// app.get("/weather", async (req, res) => {
-//   const { city, lat, lon } = req.query;
-//   const weatherData = await getWeather({ city, lat, lon });
-//   if (weatherData.error) {
-//     return res.status(500).json(weatherData);
-//   }
-//   return res.json(weatherData);
-// });
+// Socket.IO
+const io = new SocketIOServer(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"],
+  },
+});
 
-// --- DATABASE CONNECTION & SERVER START ---
+// REST APIs
+app.use("/api/tasks", taskRoutes);
+app.use("/api/ai", aiRoutes);
+
+// Socket events
+io.on("connection", (socket) => {
+  console.log("⚡ Client connected:", socket.id);
+
+  socket.on("index:build", async ({ userId }) => {
+    try {
+      await buildUserSpatialIndex(userId);
+      socket.emit("index:built", { success: true });
+    } catch (err) {
+      socket.emit("index:error", { message: err.message });
+    }
+  });
+
+  socket.on("location:update", async ({ userId, lat, lng }) => {
+    try {
+      const matches = await findNearbyTasks(userId, lat, lng);
+      socket.emit(
+        matches.length > 0 ? "geofence:inside" : "geofence:none",
+        { matches }
+      );
+    } catch (err) {
+      socket.emit("geofence:error", { message: err.message });
+    }
+  });
+
+  socket.on("disconnect", () => {
+    console.log("🔌 Client disconnected:", socket.id);
+  });
+});
+
+// Start server
 const startServer = async () => {
   try {
-    await dbConnect(); // Connects to DB first
-    app.listen(port, () => {
-      console.log(`Server is listening on port ${port}`);
-      console.log(`Try: http://localhost:${port}`);
+    await dbConnect();
+    server.listen(port, () => {
+      console.log(`🚀 Server running on http://localhost:${port}`);
     });
   } catch (err) {
-    console.error("❌ Failed to start server:", err.message);
+    console.error("❌ Startup error:", err.message);
     process.exit(1);
   }
 };
